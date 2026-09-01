@@ -5,12 +5,18 @@ import { useUser } from '../../services/UserContext';
 
 const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
 
-const ProfilePhoto = ({ userId, className = '' }) => {
-  const [profilePhoto, setProfilePhoto] = useState(null);
-  const [loading, setLoading] = useState(true);
+const ProfilePhoto = ({ userId, photoPath, className = '', style = {} }) => {
+  const [profilePhoto, setProfilePhoto] = useState(photoPath || null);
+  const [loading, setLoading] = useState(!photoPath);
   const { user } = useUser();
 
   useEffect(() => {
+    if (photoPath !== undefined) {
+      setProfilePhoto(photoPath);
+      setLoading(false);
+      return;
+    }
+
     const fetchProfilePhoto = async () => {
       if (!userId) return;
       try {
@@ -27,7 +33,7 @@ const ProfilePhoto = ({ userId, className = '' }) => {
     };
 
     fetchProfilePhoto();
-  }, [userId, user?.profilePhoto]);
+  }, [userId, photoPath, user?.profilePhoto]);
 
   if (loading) return <div><Spinner /></div>;
 
@@ -36,6 +42,7 @@ const ProfilePhoto = ({ userId, className = '' }) => {
       src={profilePhoto ? `${BASE_URL}/${profilePhoto.replace(/\\/g, "/")}` : `/assets/profile-placeholder.svg`}
       alt="Profile"
       className={`profile-photo ${className}`}
+      style={style}
     />
   );
 };

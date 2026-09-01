@@ -98,6 +98,7 @@ const RecommendedUsersList = ({ onSwitchToFriends }) => {
           >
             <ProfilePhoto 
               userId={user?._id}
+              photoPath={user?.profilePhoto}
               className="recommended-profile-picture"
             />
             <div>
