@@ -10,7 +10,14 @@ import {
     faThumbsUp, 
     faComment,
     faShare,
-    faFlag
+    faFlag,
+    faBriefcase,
+    faBuilding,
+    faLocationDot,
+    faCalendarXmark,
+    faUserTie,
+    faListCheck,
+    faArrowUpRightFromSquare
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -256,8 +263,16 @@ const PostCard = ({ post, onDelete, onEdit, onLike, currentUser, isInFeedView = 
                             <h3>{post.author?.name || 'Anonymous'}</h3>
                         </Link>
                         <p className="gcu-post-author-details">
-                            {post.author?.batch && `${post.author.batch} - `}
-                            {post.author?.branch || ''}
+                            {post.author?.role === 'admin' || post.author?.role === 'superuser' ? (
+                                <span style={{ fontSize: '0.75rem', backgroundColor: '#e0f2fe', color: '#0369a1', padding: '1px 6px', borderRadius: '4px', fontWeight: '600' }}>
+                                    Administrator
+                                </span>
+                            ) : (
+                                <>
+                                    {post.author?.batch && `${post.author.batch} - `}
+                                    {post.author?.branch || ''}
+                                </>
+                            )}
                         </p>
                         <p className="gcu-post-timestamp">
                             {getRelativeTime(post.createdAt)}
@@ -296,7 +311,83 @@ const PostCard = ({ post, onDelete, onEdit, onLike, currentUser, isInFeedView = 
                             </div>
                         </div>
                     ) : (
-                        <p className="gcu-post-content">{post.content}</p>
+                        <div>
+                            {post.category === 'job' && post.jobDetails ? (
+                                <div style={{ marginBottom: '14px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '18px', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+                                        <div>
+                                            <h4 style={{ margin: 0, fontSize: '1.2rem', color: '#0f2942', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <FontAwesomeIcon icon={faBriefcase} style={{ color: '#003366', fontSize: '14px' }} />
+                                                {post.jobDetails.role}
+                                            </h4>
+                                            {post.jobDetails.companyName && (
+                                                <p style={{ margin: '4px 0 0', fontSize: '0.9rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                    <FontAwesomeIcon icon={faBuilding} style={{ fontSize: '12px' }} /> {post.jobDetails.companyName}
+                                                </p>
+                                            )}
+                                        </div>
+                                        {post.jobDetails.jobType && (
+                                            <span style={{ fontSize: '0.78rem', backgroundColor: '#f8fafc', color: '#334155', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '6px', fontWeight: '600' }}>
+                                                {post.jobDetails.jobType}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', fontSize: '0.8rem', marginTop: '8px', marginBottom: '12px' }}>
+                                        {post.jobDetails.location && (
+                                            <span style={{ backgroundColor: '#f8fafc', color: '#475569', padding: '4px 10px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                                <FontAwesomeIcon icon={faLocationDot} style={{ color: '#94a3b8', fontSize: '11px' }} /> {post.jobDetails.location}
+                                            </span>
+                                        )}
+                                        {post.jobDetails.salary && (
+                                            <span style={{ backgroundColor: '#f8fafc', color: '#1e293b', padding: '4px 10px', borderRadius: '8px', border: '1px solid #e2e8f0', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                {post.jobDetails.salary}
+                                            </span>
+                                        )}
+                                        {post.jobDetails.experience && (
+                                            <span style={{ backgroundColor: '#f8fafc', color: '#475569', padding: '4px 10px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                                <FontAwesomeIcon icon={faUserTie} style={{ color: '#64748b', fontSize: '11px' }} /> {post.jobDetails.experience}
+                                            </span>
+                                        )}
+                                        {post.jobDetails.deadline && (
+                                            <span style={{ backgroundColor: '#f8fafc', color: '#475569', padding: '4px 10px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                                <FontAwesomeIcon icon={faCalendarXmark} style={{ color: '#64748b', fontSize: '11px' }} /> Deadline: {post.jobDetails.deadline}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {post.jobDetails.requirements && (
+                                        <div style={{ marginTop: '8px', marginBottom: '12px', fontSize: '0.85rem', color: '#334155', backgroundColor: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
+                                            <strong style={{ color: '#0f2942', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '4px' }}>
+                                                <FontAwesomeIcon icon={faListCheck} style={{ color: '#003366', fontSize: '12px' }} /> Key Requirements:
+                                            </strong>
+                                            <span>{post.jobDetails.requirements}</span>
+                                        </div>
+                                    )}
+
+                                    {/* Clean About Role Description */}
+                                    <p className="gcu-post-content" style={{ margin: '10px 0 14px', whiteSpace: 'pre-line', color: '#475569', fontSize: '0.92rem', lineHeight: '1.6' }}>
+                                        {post.jobDetails.aboutRole || post.content.replace(/^.*?(About Role:|\n\n)/s, '').trim() || post.content}
+                                    </p>
+
+                                    {post.jobDetails.applyLinkOrEmail && (
+                                        <div style={{ marginTop: '10px' }}>
+                                            <a 
+                                                href={post.jobDetails.applyLinkOrEmail.startsWith('http') ? post.jobDetails.applyLinkOrEmail : `mailto:${post.jobDetails.applyLinkOrEmail}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#10b981', color: '#ffffff', padding: '8px 16px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '600', textDecoration: 'none' }}
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                Apply Now <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{ fontSize: '11px' }} />
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <p className="gcu-post-content" style={{ whiteSpace: 'pre-line' }}>{post.content}</p>
+                            )}
+                        </div>
                     )}
                 </div>
                 

@@ -54,7 +54,11 @@ const Bottombar = () => {
     </div>
     <div className="developer-info">
       <p>© Girijananda Chowdhury University (GCU) 2024, All right reserved.</p>
-      <p>Proudly Designed & Developed by <strong>Priyanuj,</strong><strong>Nishant,</strong><strong>Jyotirmoy,</strong><strong>Fahim,</strong><strong>Manav.</strong></p>
+      <p>
+        <a href="/developers" style={{ color: 'inherit', textDecoration: 'none' }}>
+          Proudly Designed & Developed by <strong>Priyanuj,</strong> <strong>Nishant,</strong> <strong>Jyotirmoy,</strong> <strong>Fahim,</strong> <strong>Manav.</strong>
+        </a>
+      </p>
     </div>
     </>
   );

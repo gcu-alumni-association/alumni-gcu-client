@@ -15,20 +15,20 @@ const Topbar = () => {
   const navContentRef = useRef(null);
 
   const isAboutActive = () => {
-    const aboutRoutes = ['/overview', '/vision', '/vcmsg', '/council'];
+    const aboutRoutes = ['/overview', '/vision', '/vcmsg', '/council', '/presmsg', '/cmsg', '/registrarmsg', '/developers'];
     return aboutRoutes.some(route => location.pathname.startsWith(route));
   };
 
   // Toggle mobile navigation
   const toggleNav = () => {
     setIsNavOpen((prev) => !prev);
-    document.querySelector('.header-nav').classList.toggle('open');
+    document.querySelector('.header-nav')?.classList.toggle('open');
   };
 
   // Close mobile navigation
   const closeNav = () => {
     setIsNavOpen(false);
-    document.querySelector('.header-nav').classList.remove('open');
+    document.querySelector('.header-nav')?.classList.remove('open');
   };
 
   // Logout handler
@@ -116,11 +116,30 @@ const Topbar = () => {
                   <li><NavLink to='/vcmsg' className={({ isActive }) => isActive ? 'active' : ''}>Vice Chancellor's Message</NavLink></li>
                   <li><NavLink to='/registrarmsg' className={({ isActive }) => isActive ? 'active' : ''}>Registrar's Message</NavLink></li>
                   <li><NavLink to='/council' className={({ isActive }) => isActive ? 'active' : ''}>Governing Council</NavLink></li>
+                  <li><NavLink to='/developers' className={({ isActive }) => isActive ? 'active' : ''}>Developers</NavLink></li>
                 </ul>
               </li>
               <li><NavLink to="/association-members" className={({ isActive }) => isActive ? 'active' : ''}>Association Members</NavLink></li>
               <li><NavLink to="/alumni-achievers" className={({ isActive }) => isActive ? 'active' : ''}>Alumni-Achievers</NavLink></li>
               <li><NavLink to="/scholarship" className={({ isActive }) => isActive ? 'active' : ''}>Scholarships</NavLink></li>
+              <li>
+                <NavLink 
+                  to="/opportunity/jobs" 
+                  className={({ isActive }) => isActive || location.pathname.startsWith('/opportunity') ? 'active' : ''}
+                >
+                  Opportunity
+                </NavLink>
+                <ul className='sub-menus'>
+                  <li>
+                    <NavLink 
+                      to="/opportunity/jobs" 
+                      className={({ isActive }) => isActive ? 'active' : ''}
+                    >
+                      Job
+                    </NavLink>
+                  </li>
+                </ul>
+              </li>
               <li><NavLink to="/news" className={({ isActive }) => isActive ? 'active' : ''}>News</NavLink></li>
               <li><NavLink to="/events" className={({ isActive }) => isActive ? 'active' : ''}>Events</NavLink></li>
               <li><NavLink to="/gallery" className={({ isActive }) => isActive ? 'active' : ''}>Gallery</NavLink></li>
