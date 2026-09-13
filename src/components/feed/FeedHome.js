@@ -16,17 +16,19 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Welcome = () => {
+    const location = useLocation();
+    const { postId } = useParams();
+    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [isFetchingMore, setIsFetchingMore] = useState(false); // New state for infinite scrolling
     const [error, setError] = useState(null);
     const [posts, setPosts] = useState([]);
     const [totalPages, setTotalPages] = useState(1);
     const [currentUser, setCurrentUser] = useState(null);
-    const [activeTab, setActiveTab] = useState("home");
+    const [activeTab, setActiveTab] = useState(() => {
+        return location.state?.tab || "home";
+    });
     const [hasMore, setHasMore] = useState(true);
-    const location = useLocation();
-    const { postId } = useParams();
-    const navigate = useNavigate();
     const loaderRef = useRef(null);
     const currentPageRef = useRef(1);
     const postsPerPage = 6;
@@ -122,10 +124,10 @@ const Welcome = () => {
         return () => observer.disconnect();
     }, [hasMore, isFetchingMore, posts.length, activeTab, fetchPosts]);
 
-    const handleSubmitPost = async (content, category) => {
+    const handleSubmitPost = async (content, category, jobDetails = null) => {
         try {
             setIsLoading(true);
-            await api.post("/posts/create", { content, category });
+            await api.post("/posts/create", { content, category, jobDetails });
     
             const currentCategory =
                 activeTab === "jobs"
@@ -213,14 +215,18 @@ const Welcome = () => {
     };
 
     useEffect(() => {
+        if (location.state?.tab && location.state.tab !== activeTab) {
+            setActiveTab(location.state.tab);
+        }
         if (location.state?.refresh) {
             // Reset everything
             setPosts([]);
             currentPageRef.current = 1;
             setHasMore(true);
-            const category = activeTab === "jobs" ? "job" : 
-                            activeTab === "education" ? "education" : 
-                            activeTab === "my-posts" ? "all" : "post";
+            const targetTab = location.state.tab || activeTab;
+            const category = targetTab === "jobs" ? "job" : 
+                            targetTab === "education" ? "education" : 
+                            targetTab === "my-posts" ? "all" : "post";
             fetchPosts(1, category, true);
             
             navigate(".", { replace: true, state: {} });
