@@ -22,6 +22,7 @@ const programmeData = {
           "Mathematics",
           "Zoology",
           "Botany",
+          "Psychology",
           "Fire and Safety",
           "Hospitality and Hotel Management",
           "Agriculture (Honours)"

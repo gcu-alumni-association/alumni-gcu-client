@@ -37,6 +37,7 @@ import CreateAdmin from "./pages/admin/CreateAdmin";
 
 import AdminFeedbackPanel from "./pages/admin/AdminFeedbackPanel";
 import DashboardCharts from "./pages/admin/AdminStats";
+import ReviewerDashboard from "./pages/admin/ReviewerDashboard";
 import FlaggedPosts from "./pages/admin/FlaggedPosts";
 import AdminCompanies from "./pages/admin/AdminCompanies";
 import AdminDevelopers from "./pages/admin/AdminDevelopers";
@@ -123,26 +124,26 @@ function App() {
                   element={
                     <ProtectedRoute
                       element={<ResetPassword />}
-                      requiredRole={["superuser", "admin", "user"]}
+                      requiredRole={["superuser", "admin", "reviewer", "user"]}
                     />
                   }
                 />
                 <Route
                   path="/profile"
                   element={
-                    <ProtectedRoute element={<Profile />} requiredRole={["superuser", "admin", "user"]} />
+                    <ProtectedRoute element={<Profile />} requiredRole={["superuser", "admin", "reviewer", "user"]} />
                   }
                 />
                 <Route
                   path="/profile/:id"
                   element={
-                    <ProtectedRoute element={<Profile />} requiredRole={["superuser", "admin", "user"]} />
+                    <ProtectedRoute element={<Profile />} requiredRole={["superuser", "admin", "reviewer", "user"]} />
                   }
                 />
                 <Route
                   path="/change-profile-picture"
                   element={
-                    <ProtectedRoute element={<ChangeProfilePicture />} requiredRole={["superuser", "admin", "user"]} />
+                    <ProtectedRoute element={<ChangeProfilePicture />} requiredRole={["superuser", "admin", "reviewer", "user"]} />
                   }
                 />
                 <Route
@@ -150,7 +151,7 @@ function App() {
                   element={
                     <ProtectedRoute
                       element={<UpdateProfile />}
-                      requiredRole={["superuser", "admin", "user"]}
+                      requiredRole={["superuser", "admin", "reviewer", "user"]}
                     />
                   }
                 />
@@ -167,7 +168,7 @@ function App() {
                   element={
                     <ProtectedRoute
                       element={<FeedHome />}
-                      requiredRole={["superuser", "admin", "user"]}
+                      requiredRole={["superuser", "admin", "reviewer", "user"]}
                     />
                   }
                 />
@@ -177,7 +178,7 @@ function App() {
                   element={
                     <ProtectedRoute
                       element={<FeedHome />}
-                      requiredRole={["superuser", "admin", "user"]}
+                      requiredRole={["superuser", "admin", "reviewer", "user"]}
                     />
                   }
                 />
@@ -188,11 +189,12 @@ function App() {
                 element={
                   <ProtectedRoute
                     element={<AdminLayout />}
-                    requiredRole={["superuser", "admin"]}
+                    requiredRole={["superuser", "admin", "reviewer"]}
                   />
                 }
               >
                 <Route path="/admin-stats" element={<DashboardCharts />} />
+                <Route path="/reviewer-dashboard" element={<ReviewerDashboard />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/alumni-archive" element={<AlumniArchive />} />
                 <Route path="/admin-companies" element={<AdminCompanies />} />
