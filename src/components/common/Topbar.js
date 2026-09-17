@@ -150,6 +150,9 @@ const Topbar = () => {
                   {(user.role === 'admin' || user.role === 'superuser') && (
                     <li><NavLink to="/admin-stats" className={({ isActive }) => isActive ? 'active' : ''}>Admin Dashboard</NavLink></li>
                   )}
+                  {user.role === 'reviewer' && (
+                    <li><NavLink to="/reviewer-dashboard" className={({ isActive }) => isActive ? 'active' : ''}>Reviewer Dashboard</NavLink></li>
+                  )}
                 </>
               )}
             </ul>
