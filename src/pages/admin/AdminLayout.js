@@ -27,12 +27,6 @@ const AdminLayout = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/admin-dashboard" className={getActiveClass}>
-                <FaTachometerAlt />
-                <span>Approve</span>
-              </NavLink>
-            </li>
-            <li>
               <NavLink to="/alumni-archive" className={getActiveClass}>
                 <FaAddressBook />
                 <span>Alumni-Archive</span>

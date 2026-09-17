@@ -184,7 +184,7 @@ function App() {
                 />
               </Route>
 
-              {/* Admin & SuperUser Routes */}
+              {/* Reviewer, Admin & SuperUser Shared Routes (Read-Only stats and archive) */}
               <Route
                 element={
                   <ProtectedRoute
@@ -193,10 +193,23 @@ function App() {
                   />
                 }
               >
-                <Route path="/admin-stats" element={<DashboardCharts />} />
                 <Route path="/reviewer-dashboard" element={<ReviewerDashboard />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/alumni-archive" element={<AlumniArchive />} />
+                <Route path="/view-feedback" element={<AdminFeedbackPanel />} /> 
+                <Route path="/flagged-posts" element={<FlaggedPosts />} />
+              </Route>
+
+              {/* Admin & SuperUser Exclusive Routes (Approvals and Management) */}
+              <Route
+                element={
+                  <ProtectedRoute
+                    element={<AdminLayout />}
+                    requiredRole={["superuser", "admin"]}
+                  />
+                }
+              >
+                <Route path="/admin-stats" element={<DashboardCharts />} />
+                <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/admin-companies" element={<AdminCompanies />} />
                 <Route path="/admin-developers" element={<AdminDevelopers />} />
                 <Route path="/news-form" element={<AdminNewsForm />} />
@@ -205,8 +218,6 @@ function App() {
                 <Route path="/admin-alumni-faces" element={<AdminAlumniFaceUpload />} />
                 <Route path="/email-form" element={<AdminEmailForm />} />
                 <Route path="/add-bulk-alumni" element={<BulkAddAlumni />} />
-                <Route path="/view-feedback" element={<AdminFeedbackPanel />} /> 
-                <Route path="/flagged-posts" element={<FlaggedPosts />} />             
                 <Route path="*" element={<NotFound />} />                
               </Route>
 

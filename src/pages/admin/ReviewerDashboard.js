@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import VisitorCounterBanner from '../../components/common/VisitorCounter';
@@ -12,7 +11,6 @@ import {
   GraduationCap,
   Calendar,
   RefreshCw,
-  ArrowUpRight,
   ShieldCheck,
   Filter
 } from 'lucide-react';
@@ -47,7 +45,6 @@ ChartJS.register(
 );
 
 const ReviewerDashboard = () => {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -259,24 +256,6 @@ const ReviewerDashboard = () => {
           >
             <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
             {refreshing ? 'Refreshing...' : 'Refresh Data'}
-          </button>
-          <button
-            onClick={() => navigate('/admin-dashboard')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              backgroundColor: '#2563eb',
-              border: 'none',
-              color: 'white',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)'
-            }}
-          >
-            Go to Approvals <ArrowUpRight size={16} />
           </button>
         </div>
       </div>
@@ -597,24 +576,9 @@ const ReviewerDashboard = () => {
           <div>
             <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#1e293b' }}>Recent Student Joinings</h3>
             <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
-              Latest student registrations ready for verification and review.
+              Latest student registrations and verification status overview.
             </p>
           </div>
-          <button
-            onClick={() => navigate('/admin-dashboard')}
-            style={{
-              backgroundColor: '#f1f5f9',
-              color: '#334155',
-              border: '1px solid #cbd5e1',
-              padding: '6px 14px',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            Review All Pending Students →
-          </button>
         </div>
 
         <div style={{ overflowX: 'auto' }}>
