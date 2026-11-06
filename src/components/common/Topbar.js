@@ -3,6 +3,7 @@ import "../components.css";
 import { useUser } from '../../services/UserContext';
 import { NavLink, Link, useLocation } from 'react-router-dom'; // Changed to NavLink
 import ProfilePhoto from "../../components/common/ProfilePhotoComponent";
+import LoginNotice from './LoginNotice';
 import { Camera, LogOut } from 'lucide-react';
 
 const Topbar = () => {
@@ -190,6 +191,7 @@ const Topbar = () => {
           )}
         </div>
       </div>
+      <LoginNotice />
     </header>
   );
 };

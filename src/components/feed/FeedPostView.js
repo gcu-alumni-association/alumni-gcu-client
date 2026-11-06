@@ -104,7 +104,7 @@ const FeedPostView = ({ onBack }) => {
                 });
                 setPost({
                     ...post,
-                    comments: [...post.comments, response.data],
+                    comments: response.data, // The API returns the post's full comment list
                 });
                 setCommentText("");
                 toast.success('Comment posted successfully!', {

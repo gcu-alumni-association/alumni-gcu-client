@@ -3,16 +3,16 @@ import { Navigate } from 'react-router-dom';
 import { UserContext } from '../services/UserContext';
 
 const ProtectedRoute = ({ element, requiredRole }) => {
-  const { user } = useContext(UserContext);
+  const { user, authChecked } = useContext(UserContext);
 
   // Display a loading message while checking auth status
-  if (!user) {
+  if (!authChecked) {
     return <div>Loading...</div>;
   }
 
-  // Check if user is authenticated
+  // Check if user is authenticated. replace keeps the Back button from returning here.
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
   // Check if user has any of the required roles

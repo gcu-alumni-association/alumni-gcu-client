@@ -17,6 +17,7 @@
 
 .admin-content {
   flex: 1;
+  min-width: 0; /* Lets wide content shrink or scroll instead of widening the page */
   padding: 50px;
   background-color: #f8f9fa;
   min-height:100vh;
@@ -426,6 +427,7 @@
 
 .admin-dashboard-search-input {
   flex-grow: 1;
+  min-width: 0;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px 0 0 4px;
@@ -929,10 +931,75 @@
   font-size: 16px;
 }
 
+/* Charts sit in grids, and a grid item won't shrink below its content without this */
+.chart-container {
+  min-width: 0;
+}
+
 /* Responsive Design (Optional if needed in future) */
 @media (max-width: 768px) {
   .metrics-overview {
     flex-direction: column;
     gap: 10px;
+  }
+
+  /* The sidebar becomes a scrolling strip so the page gets the full screen width */
+  .admin-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-nav-bar {
+    position: sticky;
+    z-index: 100;
+    width: 100%;
+    height: auto;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    height: auto;
+    padding-top: 0;
+    border-right: none;
+    overflow: visible;
+  }
+
+  .admin-sidebar ul {
+    display: flex;
+    margin: 0;
+    overflow-x: auto;
+  }
+
+  .admin-sidebar ul li {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  .admin-sidebar ul li a {
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+
+  .admin-sidebar ul li a svg {
+    margin-bottom: 2px;
+    font-size: 1.25em;
+  }
+
+  .admin-sidebar ul li a span {
+    font-size: 0.75rem;
+  }
+
+  .admin-content {
+    box-sizing: border-box;
+    width: 100%;
+    margin-left: 0;
+    padding: 16px 12px;
+  }
+
+  /* Wide tables scroll inside their own box instead of widening the page */
+  .admin-content table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
   }
 }

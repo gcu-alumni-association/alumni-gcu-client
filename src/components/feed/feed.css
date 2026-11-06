@@ -89,6 +89,17 @@
 }
 
   
+/* Share the bottom bar equally so all six tabs fit on the narrowest phones */
+@media screen and (max-width: 480px) {
+  .feed-sidebar .feed-navbar-list .feed-nav-item,
+  .feed-sidebar .feed-navbar-list .feed-nav-item.active {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 8px 0;
+    font-size: 11px;
+  }
+}
+
 /* Feed NavBar */
 
 .feed-sidebar {

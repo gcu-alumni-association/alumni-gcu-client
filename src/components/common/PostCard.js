@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from 'react-router-dom';
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 import '../components.css';
+import './post-images.css';
 import ProfilePhoto from "../../components/common/ProfilePhotoComponent";
 import CommentModal from "./CommentModal";
 import api from "../../services/api";
@@ -22,7 +25,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
+
 const PostCard = ({ post, onDelete, onEdit, onLike, currentUser, isInFeedView = false, onCommentClick }) => {
+    const [lightboxIndex, setLightboxIndex] = useState(-1);
+    const imageUrls = (post.images || []).map((image) => `${BASE_URL}${image}`);
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(post.content);
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
@@ -32,6 +39,11 @@ const PostCard = ({ post, onDelete, onEdit, onLike, currentUser, isInFeedView = 
     const navigate = useNavigate();
     const menuRef = useRef(null);
     const menuButtonRef = useRef(null);
+
+    // Keep the comment count right when the single post page updates its comments
+    useEffect(() => {
+        setComments(post.comments || []);
+    }, [post.comments]);
 
     // Track menu state with ref
     const menuOpenRef = useRef(showMenu);
@@ -99,7 +111,7 @@ const PostCard = ({ post, onDelete, onEdit, onLike, currentUser, isInFeedView = 
             const response = await api.post(`/posts/${post._id}/comments`, {
                 text: commentText
             });
-            setComments([...comments, response.data]);
+            setComments(response.data); // The API returns the post's full comment list
             toast.success('Comment added successfully!', {
                 position: "bottom-center",
                 autoClose: 3000,
@@ -384,13 +396,41 @@ const PostCard = ({ post, onDelete, onEdit, onLike, currentUser, isInFeedView = 
                                         </div>
                                     )}
                                 </div>
-                            ) : (
+                            ) : post.content && (
                                 <p className="gcu-post-content" style={{ whiteSpace: 'pre-line' }}>{post.content}</p>
+                            )}
+
+                            {imageUrls.length > 0 && (
+                                <div className="gcu-post-images" data-count={imageUrls.length}>
+                                    {imageUrls.map((url, index) => (
+                                        <button
+                                            key={url}
+                                            type="button"
+                                            className="gcu-post-image-button"
+                                            onClick={() => setLightboxIndex(index)}
+                                            aria-label={`View image ${index + 1} of ${imageUrls.length}`}
+                                        >
+                                            <img src={url} alt="" loading="lazy" />
+                                        </button>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     )}
                 </div>
-                
+
+                {lightboxIndex >= 0 && (
+                    // React events bubble out of the lightbox's portal, so stop them opening the post
+                    <div onClick={(e) => e.stopPropagation()}>
+                        <Lightbox
+                            open
+                            close={() => setLightboxIndex(-1)}
+                            index={lightboxIndex}
+                            slides={imageUrls.map((src) => ({ src }))}
+                        />
+                    </div>
+                )}
+
                 <hr className="gcu-horizontal-line" />
 
                 {/* Bottom action buttons */}

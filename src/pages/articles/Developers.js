@@ -26,11 +26,13 @@ const Developers = () => {
     fetchDevelopers();
   }, []);
 
+  const guides = useMemo(() => developers.filter((dev) => dev.type === 'guide'), [developers]);
+
   // Group developers into batches
   const groupedBatches = useMemo(() => {
     const groups = {};
 
-    developers.forEach((dev) => {
+    developers.filter((dev) => dev.type !== 'guide').forEach((dev) => {
       let batchLabel = 'Core Development Team';
       if (dev.academicYear && dev.academicYear.trim()) {
         batchLabel = dev.academicYear.trim();
@@ -65,6 +67,11 @@ const Developers = () => {
     const start = (currentPage - 1) * batchesPerPage;
     return groupedBatches.slice(start, start + batchesPerPage);
   }, [groupedBatches, currentPage, batchesPerPage]);
+
+  // Guides appear once, above the batches on the first page
+  const visibleGroups = currentPage === 1 && guides.length > 0
+    ? [{ batchTitle: 'Guided By', isGuides: true, members: guides }, ...currentBatches]
+    : currentBatches;
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -121,7 +128,7 @@ const Developers = () => {
         ) : (
           <>
             {/* Render Batches Divided Clearly */}
-            {currentBatches.map((batchGroup, groupIndex) => (
+            {visibleGroups.map((batchGroup, groupIndex) => (
               <div key={groupIndex} style={{ marginBottom: '55px' }}>
                 {/* Batch Header */}
                 <div style={{ textAlign: 'center', marginBottom: '35px' }}>
@@ -134,7 +141,7 @@ const Developers = () => {
                       marginBottom: '10px'
                     }}
                   >
-                    {batchGroup.batchTitle.toLowerCase().includes('batch') || batchGroup.batchTitle.toLowerCase().includes('team')
+                    {batchGroup.isGuides || batchGroup.batchTitle.toLowerCase().includes('batch') || batchGroup.batchTitle.toLowerCase().includes('team')
                       ? batchGroup.batchTitle
                       : `Batch ${batchGroup.batchTitle}`}
                   </h2>

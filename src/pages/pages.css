@@ -1540,6 +1540,19 @@ button:hover {
   margin-bottom: 20px;
 }
 
+/* On phones the hero text wraps more, so let the section grow to hold the Register button */
+@media (max-width: 480px) {
+  .main .hero,
+  .main .hero .left-box {
+    height: auto;
+    min-height: 400px;
+  }
+
+  .main .hero .left-box {
+    padding-bottom: 24px;
+  }
+}
+
 .col {
   flex: 1;
   padding: 10px;

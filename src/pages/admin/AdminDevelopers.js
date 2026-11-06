@@ -17,6 +17,7 @@ const AdminDevelopers = () => {
   const [submitting, setSubmitting] = useState(false);
 
   // Form State
+  const [formType, setFormType] = useState('developer'); // 'developer' or 'guide'
   const [selectedUserId, setSelectedUserId] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
@@ -50,7 +51,11 @@ const AdminDevelopers = () => {
     fetchData();
   }, []);
 
-  const handleOpenModal = (dev = null) => {
+  const isGuideForm = formType === 'guide';
+  const formLabel = isGuideForm ? 'Guide' : 'Developer';
+
+  const handleOpenModal = (dev = null, type = 'developer') => {
+    setFormType(dev ? (dev.type === 'guide' ? 'guide' : 'developer') : type);
     if (dev) {
       setEditingDev(dev);
       setSelectedUserId(dev.user?._id || dev.user || '');
@@ -118,11 +123,14 @@ const AdminDevelopers = () => {
     setSubmitting(true);
     try {
       const formData = new FormData();
-      formData.append('userId', selectedUserId);
+      formData.append('type', formType);
       formData.append('name', name);
       formData.append('role', role);
-      formData.append('academicYear', academicYear);
       formData.append('branch', branch);
+      if (!isGuideForm) {
+        formData.append('userId', selectedUserId);
+        formData.append('academicYear', academicYear);
+      }
       formData.append('category', 'developers');
 
       if (imageFile) {
@@ -137,35 +145,41 @@ const AdminDevelopers = () => {
         await api.put(`/developers/update/${editingDev._id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-        alert('Developer profile updated successfully.');
+        alert(`${formLabel} profile updated successfully.`);
       } else {
         await api.post('/developers/add', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-        alert('Developer profile created successfully.');
+        alert(`${formLabel} profile created successfully.`);
       }
 
       setShowModal(false);
       fetchData();
     } catch (error) {
       console.error('Error saving developer profile:', error);
-      alert(error.response?.data?.message || 'Failed to save developer profile.');
+      alert(error.response?.data?.message || `Failed to save ${formLabel.toLowerCase()} profile.`);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this developer profile?')) return;
+  const handleDelete = async (dev) => {
+    const label = dev.type === 'guide' ? 'guide' : 'developer';
+    if (!window.confirm(`Are you sure you want to delete this ${label} profile?`)) return;
     try {
-      await api.delete(`/developers/delete/${id}`);
-      alert('Developer deleted successfully.');
-      setDevelopers(prev => prev.filter(d => d._id !== id));
+      await api.delete(`/developers/delete/${dev._id}`);
+      alert(`${label === 'guide' ? 'Guide' : 'Developer'} deleted successfully.`);
+      setDevelopers(prev => prev.filter(d => d._id !== dev._id));
     } catch (error) {
-      console.error('Error deleting developer:', error);
-      alert('Failed to delete developer.');
+      console.error(`Error deleting ${label}:`, error);
+      alert(`Failed to delete ${label}.`);
     }
   };
+
+  const sections = [
+    { title: 'Guided By (Teachers)', items: developers.filter((dev) => dev.type === 'guide') },
+    { title: 'Developers', items: developers.filter((dev) => dev.type !== 'guide') },
+  ];
 
   return (
     <div className="dashboard-container" style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '10px 0' }}>
@@ -190,9 +204,28 @@ const AdminDevelopers = () => {
             Manage Developer Team
           </h2>
           <p style={{ color: '#64748b', margin: '6px 0 0', fontSize: '0.95rem' }}>
-            Add developers directly from enrolled Alumni members or create custom developer profiles (latest batches shown first).
+            Add developers from enrolled Alumni members or as custom profiles (latest batches shown first), and the teachers who guided them.
           </p>
         </div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => handleOpenModal(null, 'guide')}
+          style={{
+            backgroundColor: '#ffffff',
+            color: '#003366',
+            border: '1px solid #003366',
+            borderRadius: '8px',
+            padding: '10px 18px',
+            fontWeight: '600',
+            fontSize: '0.95rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          <Plus size={18} /> Add Guide
+        </button>
         <button
           onClick={() => handleOpenModal()}
           style={{
@@ -212,6 +245,7 @@ const AdminDevelopers = () => {
         >
           <Plus size={18} /> Add Developer
         </button>
+        </div>
       </div>
 
       {loading ? (
@@ -221,9 +255,13 @@ const AdminDevelopers = () => {
           <Code size={40} style={{ color: '#cbd5e1', marginBottom: '12px' }} />
           <p style={{ fontSize: '1.1rem', margin: 0 }}>No developer profiles created yet.</p>
         </div>
-      ) : (
-        /* Horizontal Row Grid (Latest at top) */
-        <div 
+      ) : sections.map((section) => section.items.length > 0 && (
+        <div key={section.title} style={{ marginBottom: '32px' }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f2942', marginBottom: '16px' }}>
+          {section.title}
+        </h3>
+        {/* Horizontal Row Grid (Latest at top) */}
+        <div
           style={{
             display: 'flex',
             flexDirection: 'row',
@@ -232,7 +270,7 @@ const AdminDevelopers = () => {
             width: '100%'
           }}
         >
-          {developers.map((dev) => {
+          {section.items.map((dev) => {
             const imageSrc = dev.image 
               ? (dev.image.startsWith('http') ? dev.image : `${BASE_URL}${dev.image.startsWith('/') ? '' : '/'}${dev.image.replace(/\\/g, '/')}`) 
               : '/assets/profile-placeholder.svg';
@@ -359,7 +397,7 @@ const AdminDevelopers = () => {
                       <Edit2 size={13} /> Edit
                     </button>
                     <button 
-                      onClick={() => handleDelete(dev._id)}
+                      onClick={() => handleDelete(dev)}
                       style={{
                         flex: 1,
                         padding: '6px 12px',
@@ -384,17 +422,19 @@ const AdminDevelopers = () => {
             );
           })}
         </div>
-      )}
+        </div>
+      ))}
 
       {/* Add / Edit Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>{editingDev ? 'Edit Developer' : 'Add Developer'}</Modal.Title>
+          <Modal.Title>{editingDev ? `Edit ${formLabel}` : `Add ${formLabel}`}</Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleSubmit}>
           <Modal.Body>
-            {/* Choose From Enrolled Alumni Dropdown */}
-            <div 
+            {/* Choose From Enrolled Alumni Dropdown (guides are teachers, not alumni) */}
+            {!isGuideForm && (
+            <div
               style={{
                 backgroundColor: '#f0fdf4',
                 border: '1px solid #bbf7d0',
@@ -422,61 +462,69 @@ const AdminDevelopers = () => {
                 Selecting an alumnus will automatically load their name, academic year, branch, and profile picture.
               </small>
             </div>
+            )}
 
             <div className="row">
               <div className="col-md-6 mb-3">
-                <Form.Label>Student / Developer Name *</Form.Label>
-                <Form.Control 
-                  type="text" 
-                  value={name} 
-                  onChange={(e) => setName(e.target.value)} 
-                  placeholder="e.g. Chinmoy Baruah" 
-                  required 
+                <Form.Label htmlFor="devFormName">{isGuideForm ? 'Teacher Name *' : 'Student / Developer Name *'}</Form.Label>
+                <Form.Control
+                  id="devFormName"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={isGuideForm ? 'e.g. Dr. Name Surname' : 'e.g. Chinmoy Baruah'}
+                  required
                 />
               </div>
 
               <div className="col-md-6 mb-3">
-                <Form.Label>Role / Designation *</Form.Label>
-                <Form.Control 
-                  type="text" 
-                  value={role} 
-                  onChange={(e) => setRole(e.target.value)} 
-                  placeholder="e.g. Frontend Developer" 
-                  required 
+                <Form.Label htmlFor="devFormRole">{isGuideForm ? 'Designation *' : 'Role / Designation *'}</Form.Label>
+                <Form.Control
+                  id="devFormRole"
+                  type="text"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  placeholder={isGuideForm ? 'e.g. Assistant Professor' : 'e.g. Frontend Developer'}
+                  required
                 />
               </div>
             </div>
 
             <div className="row">
+              {!isGuideForm && (
               <div className="col-md-6 mb-3">
                 <Form.Label>Academic Year / Batch</Form.Label>
-                <Form.Control 
-                  type="text" 
-                  value={academicYear} 
-                  onChange={(e) => setAcademicYear(e.target.value)} 
-                  placeholder="e.g. 2021-2025 or Batch of 2025" 
+                <Form.Control
+                  type="text"
+                  value={academicYear}
+                  onChange={(e) => setAcademicYear(e.target.value)}
+                  placeholder="e.g. 2021-2025 or Batch of 2025"
                 />
               </div>
+              )}
               <div className="col-md-6 mb-3">
-                <Form.Label>Branch / Department</Form.Label>
-                <Form.Control 
-                  type="text" 
-                  value={branch} 
-                  onChange={(e) => setBranch(e.target.value)} 
-                  placeholder="e.g. CSE" 
+                <Form.Label htmlFor="devFormBranch">{isGuideForm ? 'Department' : 'Branch / Department'}</Form.Label>
+                <Form.Control
+                  id="devFormBranch"
+                  type="text"
+                  value={branch}
+                  onChange={(e) => setBranch(e.target.value)}
+                  placeholder="e.g. CSE"
                 />
               </div>
             </div>
 
             <div className="mb-3">
-              <Form.Label>Custom / Override Photo (Optional)</Form.Label>
-              <Form.Control 
-                type="file" 
-                accept="image/*" 
-                onChange={handleFileChange} 
-                ref={fileInputRef} 
+              <Form.Label>{isGuideForm ? 'Photo (Optional)' : 'Custom / Override Photo (Optional)'}</Form.Label>
+              <Form.Control
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                ref={fileInputRef}
               />
-              <small className="text-muted">If selecting an enrolled alumnus, their existing photo is used automatically unless you upload a new photo here.</small>
+              {!isGuideForm && (
+                <small className="text-muted">If selecting an enrolled alumnus, their existing photo is used automatically unless you upload a new photo here.</small>
+              )}
             </div>
 
             {imagePreview && (
@@ -500,7 +548,7 @@ const AdminDevelopers = () => {
               disabled={submitting}
               style={{ backgroundColor: '#003366', borderColor: '#003366' }}
             >
-              {submitting ? 'Saving...' : (editingDev ? 'Update Developer' : 'Add Developer')}
+              {submitting ? 'Saving...' : `${editingDev ? 'Update' : 'Add'} ${formLabel}`}
             </Button>
           </Modal.Footer>
         </Form>

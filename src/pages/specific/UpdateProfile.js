@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import '../pages.css';
 import api from '../../services/api';
 import Spinner from "../../components/common/LoadingSpinner";
+import { GENDER_OPTIONS, INDUSTRY_OPTIONS } from '../../data/profileOptions';
 
 const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
 
@@ -26,6 +27,9 @@ const UpdateProfile = () => {
     currentWorkingPlace: '',
     address: '',
     designation: '',
+    gender: '',
+    areaOfExpertise: '',
+    industry: '',
     achievements: '',
     linkedin: '',
     facebook: ''
@@ -82,6 +86,9 @@ const UpdateProfile = () => {
           currentWorkingPlace: userData.currentWorkingPlace || '',
           address: userData.address || '',
           designation: userData.designation || '',
+          gender: userData.gender || '',
+          areaOfExpertise: userData.areaOfExpertise || '',
+          industry: userData.industry || '',
           achievements: achievementsStr,
           linkedin: userData.socialLinks?.linkedin || '',
           facebook: userData.socialLinks?.facebook || ''
@@ -220,6 +227,9 @@ const UpdateProfile = () => {
         currentWorkingPlace: formData.currentWorkingPlace,
         address: formData.address,
         designation: formData.designation,
+        gender: formData.gender,
+        areaOfExpertise: formData.areaOfExpertise,
+        industry: formData.industry,
         achievements: achievementsData,
         socialLinks: {
           linkedin: formData.linkedin,
@@ -291,6 +301,22 @@ const UpdateProfile = () => {
                       onChange={onChange}
                       placeholder="10 digit phone number"
                     />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="formGender">Gender:</label>
+                    <select
+                      className="form-input"
+                      id="formGender"
+                      name="gender"
+                      value={formData.gender}
+                      onChange={onChange}
+                    >
+                      <option value="">-- Select Gender --</option>
+                      {GENDER_OPTIONS.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -370,6 +396,36 @@ const UpdateProfile = () => {
                       value={formData.designation}
                       onChange={onChange}
                       placeholder="e.g. Senior Software Engineer"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="formIndustry">Industry / Sector:</label>
+                    <select
+                      className="form-input"
+                      id="formIndustry"
+                      name="industry"
+                      value={formData.industry}
+                      onChange={onChange}
+                    >
+                      <option value="">-- Select Industry / Sector --</option>
+                      {INDUSTRY_OPTIONS.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="formAreaOfExpertise">Area of Expertise:</label>
+                    <input
+                      className="form-input"
+                      type="text"
+                      id="formAreaOfExpertise"
+                      name="areaOfExpertise"
+                      value={formData.areaOfExpertise}
+                      onChange={onChange}
+                      maxLength={200}
+                      placeholder="e.g. Machine Learning, Corporate Law"
                     />
                   </div>
                 </div>

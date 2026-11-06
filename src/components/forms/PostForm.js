@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import './form.css';
+import '../common/post-images.css';
 import { useUser } from '../../services/UserContext';
 import ProfilePhoto from "../../components/common/ProfilePhotoComponent";
+import { compressImages } from '../../utils/imageCompressor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faBriefcase, 
+import {
+  faImage,
+  faXmark,
+  faBriefcase,
   faLocationDot, 
   faIndianRupeeSign, 
   faBuilding, 
@@ -15,11 +19,33 @@ import {
   faUserTie
 } from '@fortawesome/free-solid-svg-icons';
 
+const MAX_IMAGES = 4;
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // Matches the server's limit
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const IMAGE_COMPRESSION_OPTIONS = { maxSizeMB: 0.6, maxWidthOrHeight: 1280 };
+
+const formatBytes = (bytes) => (
+    bytes < 1024 * 1024
+        ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+        : `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+);
+
 const PostForm = ({ onSubmitPost, isLoading, error }) => {
     const [postContent, setPostContent] = useState("");
     const [category, setCategory] = useState("post");
     const [isModalOpen, setIsModalOpen] = useState(false);
-    
+    const [images, setImages] = useState([]); // { file, previewUrl, originalSize }
+    const [isCompressing, setIsCompressing] = useState(false);
+    const [imageError, setImageError] = useState("");
+    const imageInputRef = useRef(null);
+    const imagesRef = useRef(images);
+    imagesRef.current = images;
+
+    // Release preview URLs when the form goes away
+    useEffect(() => () => {
+        imagesRef.current.forEach((image) => URL.revokeObjectURL(image.previewUrl));
+    }, []);
+
     // Structured Job fields
     const [jobDetails, setJobDetails] = useState({
         role: "",
@@ -60,7 +86,55 @@ const PostForm = ({ onSubmitPost, isLoading, error }) => {
         setCategory(e.target.value);
     };
 
+    const handleImageSelect = async (e) => {
+        const selected = Array.from(e.target.files);
+        e.target.value = ""; // Allows choosing the same file again after removing it
+        setImageError("");
+
+        const supported = selected.filter((file) => ACCEPTED_IMAGE_TYPES.includes(file.type));
+        const chosen = supported.slice(0, MAX_IMAGES - images.length);
+
+        if (supported.length < selected.length) {
+            setImageError("Only JPEG, PNG and WebP images can be attached.");
+        } else if (chosen.length < supported.length) {
+            setImageError(`You can attach up to ${MAX_IMAGES} images.`);
+        }
+        if (chosen.length === 0) return;
+
+        setIsCompressing(true);
+        const compressed = await compressImages(chosen, IMAGE_COMPRESSION_OPTIONS);
+        setIsCompressing(false);
+
+        // compressImage returns the original file if compression fails
+        const withinLimit = compressed
+            .map((file, index) => ({ file, originalSize: chosen[index].size }))
+            .filter(({ file }) => file.size <= MAX_IMAGE_BYTES);
+
+        if (withinLimit.length < compressed.length) {
+            setImageError("An image couldn't be compressed and is over the 10 MB limit.");
+        }
+
+        setImages((prev) => [
+            ...prev,
+            ...withinLimit.map((image) => ({ ...image, previewUrl: URL.createObjectURL(image.file) })),
+        ]);
+    };
+
+    const handleRemoveImage = (imageToRemove) => {
+        URL.revokeObjectURL(imageToRemove.previewUrl);
+        setImages((prev) => prev.filter((image) => image !== imageToRemove));
+        setImageError("");
+    };
+
+    const clearImages = () => {
+        images.forEach((image) => URL.revokeObjectURL(image.previewUrl));
+        setImages([]);
+        setImageError("");
+    };
+
     const handlePostSubmit = async () => {
+        if (isCompressing) return;
+
         if (category === 'job') {
             if (!jobDetails.role.trim() || !jobDetails.aboutRole.trim()) {
                 alert("Please fill in at least the Job Role and About Role description.");
@@ -83,19 +157,21 @@ const PostForm = ({ onSubmitPost, isLoading, error }) => {
                 });
                 setCategory("post");
                 setPostContent("");
+                clearImages();
                 closeModal();
             } catch (err) {
                 console.error("Error submitting job post:", err);
             }
         } else {
-            if (!postContent.trim()) {
+            if (!postContent.trim() && images.length === 0) {
                 return;
             }
 
             try {
-                await onSubmitPost(postContent, category, null);
+                await onSubmitPost(postContent, category, null, images.map((image) => image.file));
                 setPostContent("");
                 setCategory("post");
+                clearImages();
                 closeModal();
             } catch (err) {
                 console.error("Error submitting post:", err);
@@ -112,6 +188,8 @@ const PostForm = ({ onSubmitPost, isLoading, error }) => {
     };
 
     const aboutRoleWordCount = countWords(jobDetails.aboutRole);
+    const originalImagesSize = images.reduce((total, image) => total + image.originalSize, 0);
+    const compressedImagesSize = images.reduce((total, image) => total + image.file.size, 0);
 
     return (
         <div className="post-form-container">
@@ -326,6 +404,53 @@ const PostForm = ({ onSubmitPost, isLoading, error }) => {
                                 <div style={{ textAlign: 'right', fontSize: '0.8rem', color: '#64748b', marginBottom: '10px' }}>
                                     {postContent.length}/300 chars
                                 </div>
+
+                                <div className="post-image-picker">
+                                    <input
+                                        ref={imageInputRef}
+                                        type="file"
+                                        accept={ACCEPTED_IMAGE_TYPES.join(',')}
+                                        multiple
+                                        hidden
+                                        onChange={handleImageSelect}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="post-image-add"
+                                        onClick={() => imageInputRef.current.click()}
+                                        disabled={isLoading || isCompressing || images.length >= MAX_IMAGES}
+                                    >
+                                        <FontAwesomeIcon icon={faImage} />
+                                        Add photos ({images.length}/{MAX_IMAGES})
+                                    </button>
+
+                                    {images.length > 0 && (
+                                        <div className="post-image-previews">
+                                            {images.map((image, index) => (
+                                                <div className="post-image-preview" key={image.previewUrl}>
+                                                    <img src={image.previewUrl} alt={`Selected attachment ${index + 1}`} />
+                                                    <button
+                                                        type="button"
+                                                        className="post-image-remove"
+                                                        onClick={() => handleRemoveImage(image)}
+                                                        disabled={isLoading}
+                                                        aria-label={`Remove attachment ${index + 1}`}
+                                                    >
+                                                        <FontAwesomeIcon icon={faXmark} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {isCompressing && <p className="post-image-status">Compressing images...</p>}
+                                    {!isCompressing && images.length > 0 && (
+                                        <p className="post-image-status">
+                                            Compressed {formatBytes(originalImagesSize)} to {formatBytes(compressedImagesSize)}
+                                        </p>
+                                    )}
+                                    {imageError && <p className="post-image-status is-error">{imageError}</p>}
+                                </div>
                             </div>
                         )}
 
@@ -338,7 +463,7 @@ const PostForm = ({ onSubmitPost, isLoading, error }) => {
                             </button>
                             <button 
                                 onClick={handlePostSubmit} 
-                                disabled={isLoading} 
+                                disabled={isLoading || isCompressing}
                                 style={{ padding: '8px 20px', backgroundColor: '#003366', color: '#ffffff', border: 'none', borderRadius: '6px', fontWeight: '600', cursor: 'pointer' }}
                             >
                                 {isLoading ? "Posting..." : "Publish Job / Post"}

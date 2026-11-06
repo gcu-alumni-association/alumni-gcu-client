@@ -124,11 +124,20 @@ const Welcome = () => {
         return () => observer.disconnect();
     }, [hasMore, isFetchingMore, posts.length, activeTab, fetchPosts]);
 
-    const handleSubmitPost = async (content, category, jobDetails = null) => {
+    const handleSubmitPost = async (content, category, jobDetails = null, images = []) => {
         try {
             setIsLoading(true);
-            await api.post("/posts/create", { content, category, jobDetails });
-    
+
+            if (images.length > 0) {
+                const formData = new FormData();
+                formData.append("content", content);
+                formData.append("category", category);
+                images.forEach((image) => formData.append("images", image));
+                await api.post("/posts/create", formData);
+            } else {
+                await api.post("/posts/create", { content, category, jobDetails });
+            }
+
             const currentCategory =
                 activeTab === "jobs"
                     ? "job"
@@ -167,8 +176,9 @@ const Welcome = () => {
                 );
             } else {
                 setError("Failed to submit post. Please try again.");
-                toast.error("Failed to create post. Please try again.");
+                toast.error(err.response?.data?.message || "Failed to create post. Please try again.");
             }
+            throw err; // Lets PostForm stay open and keep the text and images for a retry
         } finally {
             setIsLoading(false);
         }
