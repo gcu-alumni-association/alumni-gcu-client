@@ -1,0 +1,48 @@
+:root {
+  --login-notice-height: 44px;
+}
+
+/* Sits just below the fixed header at any header height. The negative z-index
+   keeps it underneath the navbar's dropdown menus. */
+.login-notice {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--login-notice-height);
+  padding: 0 16px;
+  background-color: #003366;
+  color: #ffffff;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.login-notice a {
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.login-notice a:hover {
+  color: #cfe3ff;
+}
+
+/* Moves the page down so the notice doesn't cover it */
+.login-notice-offset {
+  padding-top: var(--login-notice-height);
+}
+
+@media (max-width: 680px) {
+  :root {
+    --login-notice-height: 58px; /* Room for the text to wrap onto two lines */
+  }
+
+  .login-notice {
+    font-size: 0.85rem;
+  }
+}

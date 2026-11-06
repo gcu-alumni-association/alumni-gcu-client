@@ -6,6 +6,8 @@ export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    // With a saved token we don't know yet if the session is valid, until /user/user answers
+    const [authChecked, setAuthChecked] = useState(() => !localStorage.getItem('accessToken'));
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -18,7 +20,9 @@ export const UserProvider = ({ children }) => {
                     }
                 } catch (err) {
                     console.error('Error during HTTP request:', err);
-                } 
+                } finally {
+                    setAuthChecked(true);
+                }
             }
         };        
         fetchUser();
@@ -69,7 +73,7 @@ export const UserProvider = ({ children }) => {
     };
 
     return (
-        <UserContext.Provider value={{ user, setUser, login, logout, updateUserProfile, refreshUser }}>
+        <UserContext.Provider value={{ user, setUser, login, logout, updateUserProfile, refreshUser, authChecked }}>
             {children}
         </UserContext.Provider>
     );
