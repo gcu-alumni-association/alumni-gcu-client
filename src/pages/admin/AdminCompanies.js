@@ -315,7 +315,7 @@ const AdminCompanies = () => {
       </div>
 
       {/* Tab Navigation */}
-      <div className="admin-tab-buttons" style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+      <div className="admin-tab-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
         <button
           className={`admin-form-button ${activeTab === 'companies' ? 'active-tab' : ''}`}
           onClick={() => setActiveTab('companies')}

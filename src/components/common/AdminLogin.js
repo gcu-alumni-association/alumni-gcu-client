@@ -27,8 +27,8 @@ const AdminLogin = () => {
     };
 
     return (
-        <div className="container">
-            <div className='row justify-content-center'>
+        <div className="container" style={{ marginTop: '140px' }}> {/* Clears the fixed header */}
+            <div className='row justify-content-center' style={{ width: '100%' }}>
                 <div className='col-md-6'>
                     <div className="card">
                         <div className='card-body'>

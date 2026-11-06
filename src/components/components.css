@@ -783,6 +783,7 @@ display:flex;
 align-items:center;
 margin:auto;
 width:480px;
+max-width:100%;
 height:80px;
 background:#eaeaea;
 border-radius:6px;
@@ -795,6 +796,7 @@ margin: 0px 30px;
 .input input{
 height:40px;
 width:400px;
+max-width:100%;
 background: transparent;
 border:none;
 outline:none;
@@ -994,6 +996,7 @@ justify-content: center;
 
 .university-info img {
   width: 300px;
+  max-width: 100%;
   aspect-ratio: 300/128;
 }
 
@@ -1384,9 +1387,10 @@ justify-content: center;
 /* Responsive Design */
 @media screen and (max-width: 508px) {
   .news-card,
-  .event-card {
-    width: 100%; 
-    height: auto; 
+  .event-card,
+  .alumni-face-card {
+    width: 100%;
+    height: auto;
     margin: 10px 0; 
   }
 
@@ -2114,8 +2118,14 @@ justify-content: center;
 
 @media screen and (max-width: 768px) { /* Tablet and Mobile */
   
+  /* Fill the screen on any phone or tablet */
+  .gcu-posts-container {
+    width: 100%;
+  }
+
   .gcu-post-card {
-    width: 460px; 
+    box-sizing: border-box;
+    width: 100%;
   }
 
   .gcu-post-author-info h3 {
@@ -2182,7 +2192,6 @@ justify-content: center;
   }
 
   .gcu-post-card {
-    width: 360px;
     padding: 10px; /* Further reduce padding for very small screens */
   }
 
@@ -2213,18 +2222,13 @@ justify-content: center;
   }
 }
 
-@media screen and (max-width: 380px) {
-  .gcu-post-card {
-    width: 355px;
-  }
-}
 
-@media screen and (max-width: 360px) {
-  .gcu-post-card {
-    width: 230px;
-  }
+/* The header is fixed, so a long open menu has to scroll by itself to reach its last links */
+.nav-content.open {
+  max-height: calc(100vh - 90px);
+  max-height: calc(100dvh - 90px);
+  overflow-y: auto;
 }
-
 
 /* Loading spinner styles */
 

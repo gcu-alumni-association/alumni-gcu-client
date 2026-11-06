@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { FaTachometerAlt, FaNewspaper, FaCalendarAlt, FaArrowLeft, FaImages, FaAddressBook, FaBuilding, FaCode } from 'react-icons/fa';
 import { IoPersonAdd } from "react-icons/io5";
 import { MdAttachEmail, MdFeed, MdFeedback } from "react-icons/md";
@@ -10,10 +10,18 @@ const getActiveClass = ({ isActive }) => (isActive ? "active-link" : "");
 
 const AdminLayout = () => {
   const { user } = useUser();
+  const { pathname } = useLocation();
+  const navRef = useRef(null);
+
+  // On small screens the nav scrolls sideways, so keep the current page's link in view
+  useEffect(() => {
+    navRef.current?.querySelector('.active-link')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+  }, [pathname, user?.role]);
+
   return (
     <div className="admin-layout">
       <div className="admin-nav-bar">
-      <nav className="admin-sidebar">
+      <nav className="admin-sidebar" ref={navRef}>
       {/* <div className="logo-container">
         <img src="./assets/LOGO 1.jpg"  alt="Logo" className="admin-logo" />
       </div> */}

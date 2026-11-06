@@ -396,7 +396,7 @@ const ReviewerDashboard = () => {
       {/* Row 1: Student Joining Growth & Verification Ratio */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))',
         gap: '24px',
         marginBottom: '28px'
       }}>
@@ -466,12 +466,14 @@ const ReviewerDashboard = () => {
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', maxWidth: '100%', minWidth: 0 }}>
             <Filter size={16} color="#64748b" />
             <select
               value={selectedDeptFilter}
               onChange={(e) => setSelectedDeptFilter(e.target.value)}
               style={{
+                minWidth: 0,
+                maxWidth: '100%',
                 padding: '6px 12px',
                 borderRadius: '6px',
                 border: '1px solid #cbd5e1',
@@ -512,7 +514,7 @@ const ReviewerDashboard = () => {
       {/* Row 3: Batch-Wise Joining & Course Breakdown */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))',
         gap: '24px',
         marginBottom: '28px'
       }}>
