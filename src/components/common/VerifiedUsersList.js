@@ -15,6 +15,8 @@ const VerifiedUsersList = () => {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('name_asc');
+  const [batch, setBatch] = useState('');
+  const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -31,6 +33,9 @@ const VerifiedUsersList = () => {
       if (sortParam) {
         query.append('sortBy', sortParam);
       }
+      if (batch) {
+        query.append('batch', batch);
+      }
       query.append('page', pageNum);
       query.append('limit', limit);
 
@@ -39,6 +44,7 @@ const VerifiedUsersList = () => {
         setUsers(response.data.users || []);
         setTotalPages(response.data.totalPages || 1);
         setTotalUsers(response.data.totalUsers || 0);
+        setBatches(response.data.batches || []);
       } else if (Array.isArray(response.data)) {
         setUsers(response.data.slice((pageNum - 1) * limit, pageNum * limit));
         setTotalPages(Math.ceil(response.data.length / limit) || 1);
@@ -51,11 +57,11 @@ const VerifiedUsersList = () => {
     } finally {
       setLoading(false);
     }
-  }, [search, sortBy, currentPage]);
+  }, [search, sortBy, currentPage, batch]);
 
   useEffect(() => {
     fetchUsers(search, sortBy, currentPage);
-  }, [currentPage, sortBy]);
+  }, [currentPage, sortBy, batch]);
 
   const handleInputChange = (e) => {
     const val = e.target.value;
@@ -69,6 +75,11 @@ const VerifiedUsersList = () => {
     setSortBy(sortVal);
     setCurrentPage(1);
     fetchUsers(search, sortVal, 1);
+  };
+
+  const handleBatchChange = (e) => {
+    setBatch(e.target.value); // The effect above refetches
+    setCurrentPage(1);
   };
 
   const handleSearchSubmit = (e) => {
@@ -98,8 +109,19 @@ const VerifiedUsersList = () => {
           </p>
         </div>
 
-        {/* Sort selector */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Batch filter and sort selector */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <select
+            value={batch}
+            onChange={handleBatchChange}
+            aria-label="Filter by batch"
+            style={{ padding: '8px 14px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#f8f9fa', fontSize: '14px', cursor: 'pointer', fontWeight: '500' }}
+          >
+            <option value="">All Batches</option>
+            {batches.map((year) => (
+              <option key={year} value={year}>Batch of {year}</option>
+            ))}
+          </select>
           <FontAwesomeIcon icon={faSort} style={{ color: '#003366' }} />
           <select
             value={sortBy}
@@ -316,7 +338,9 @@ const VerifiedUsersList = () => {
         <div style={{ textAlign: 'center', padding: '40px 0', color: '#64748b' }}>
           <FontAwesomeIcon icon={faUser} style={{ fontSize: '32px', marginBottom: '10px', color: '#cbd5e1' }} />
           <p style={{ margin: 0, fontSize: '15px' }}>
-            {search ? `No alumni found matching "${search}".` : 'No alumni records found.'}
+            {search
+              ? `No alumni found matching "${search}"${batch ? ` in Batch of ${batch}` : ''}.`
+              : batch ? `No alumni found in Batch of ${batch}.` : 'No alumni records found.'}
           </p>
         </div>
       ) : null}
