@@ -5,6 +5,8 @@ import api from "../../services/api";
 import ProfilePhoto from "../../components/common/ProfilePhotoComponent";
 import Pagination from "../../components/common/Pagination";
 import "../pages.css";
+import "../../components/common/post-images.css";
+import { PREFER_NOT_TO_SAY } from "../../data/profileOptions";
 import Spinner from "../../components/common/LoadingSpinner";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLinkedin, faFacebook } from '@fortawesome/free-brands-svg-icons';
@@ -99,7 +101,9 @@ const Profile = () => {
                 if (refreshUser && typeof refreshUser === "function") {
                     refreshUser(); // Update context with latest data
                 }
-                fetchUserPosts(data._id, currentPage);
+                if (!data.limitedView) {
+                    fetchUserPosts(data._id, currentPage);
+                }
             }
         });
     }, [id, currentPage]);
@@ -120,6 +124,48 @@ const Profile = () => {
     const getRoleBadgeColor = (role) => {
         return role === 'admin' ? '#dc3545' : '#6f42c1'; // Red for admin, Purple for superuser
     };
+
+    // What regular alumni see on someone else's profile. The server only sends these details.
+    if (user?.limitedView) {
+        return (
+            <div className="main">
+                <div className="user-profile-container">
+                    <h1 className="user-profile-main-title">Profile</h1>
+                    <div className="user-profile-card">
+                        <div className="user-profile-header">
+                            <ProfilePhoto
+                                userId={user._id}
+                                className="user-profile-picture"
+                            />
+                            <div className="user-profile-info">
+                                <div className="user-profile-name-container">
+                                    <h2 className="user-profile-name">{user.name}</h2>
+                                </div>
+                                <p className="user-profile-email">{user.email}</p>
+                            </div>
+                        </div>
+                        <div className="user-profile-details">
+                            <p><strong>Current Organization:</strong> {user.company?.name || user.currentWorkingPlace || "Not provided"}</p>
+                            <p><strong>Current Designation:</strong> {user.designation || "Not provided"}</p>
+                            <p>
+                                <strong>LinkedIn:</strong>{' '}
+                                {user.socialLinks?.linkedin ? (
+                                    <a
+                                        href={user.socialLinks.linkedin}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="user-profile-social-link"
+                                    >
+                                        <FontAwesomeIcon icon={faLinkedin} /> LinkedIn
+                                    </a>
+                                ) : "Not provided"}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="main">
@@ -166,6 +212,14 @@ const Profile = () => {
                         <p><strong>Biography:</strong> {user?.biography || "No biography available"}</p>
                         <p><strong>Current Working Place:</strong> {user?.company?.name || user?.currentWorkingPlace || "Not provided"}</p>
                         <p><strong>Designation:</strong> {user?.designation || "Not provided"}</p>
+                        <p><strong>Industry / Sector:</strong> {user?.industry || "Not provided"}</p>
+                        <p><strong>Area of Expertise:</strong> {user?.areaOfExpertise || "Not provided"}</p>
+                        {/* Other people only see a gender the user has chosen to share */}
+                        {isLoggedInUser ? (
+                            <p><strong>Gender:</strong> {user?.gender || "Not provided"}</p>
+                        ) : user?.gender && user.gender !== PREFER_NOT_TO_SAY && (
+                            <p><strong>Gender:</strong> {user.gender}</p>
+                        )}
                         <p><strong>Batch:</strong> {user?.batch}</p>
                         <p><strong>Branch:</strong> {user?.branch}</p>
 
@@ -256,7 +310,15 @@ const Profile = () => {
                             {userPosts.map((post) => (
                                 <div key={post._id} className="user-profile-post-link" onClick={() => handlePostClick(post)}>
                                     <div className="user-profile-post-card">
-                                        <p className="user-profile-post-content">{post.content}</p>
+                                        {post.content && <p className="user-profile-post-content">{post.content}</p>}
+                                        {post.images?.length > 0 && (
+                                            <img
+                                                className="user-profile-post-thumbnail"
+                                                src={`${process.env.REACT_APP_BASE_URL || 'http://localhost:5000'}${post.images[0]}`}
+                                                alt=""
+                                                loading="lazy"
+                                            />
+                                        )}
                                         <small className="user-profile-post-date">{new Date(post.createdAt).toLocaleString()}</small>
                                     </div>
                                 </div>
