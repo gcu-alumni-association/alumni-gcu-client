@@ -1,0 +1,130 @@
+/* Images shown on a post */
+.gcu-post-images {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  margin: 12px 40px 0 74px;
+}
+
+.gcu-post-image-button {
+  display: block;
+  width: 100%;
+  height: 200px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: #f1f5f9;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.gcu-post-image-button img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A single image, and the first of three, take the full width */
+.gcu-post-images[data-count="1"] .gcu-post-image-button,
+.gcu-post-images[data-count="3"] .gcu-post-image-button:first-child {
+  grid-column: 1 / -1;
+  height: 360px;
+}
+
+/* Image picker in the post form */
+.post-image-picker {
+  margin-bottom: 10px;
+}
+
+.post-image-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #003366;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.post-image-add:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.post-image-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.post-image-preview {
+  position: relative;
+  width: 88px;
+  height: 88px;
+}
+
+.post-image-preview img {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.post-image-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.75);
+  color: #ffffff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.post-image-status {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.post-image-status.is-error {
+  color: #dc2626;
+}
+
+/* Thumbnail in the profile page's post list */
+.user-profile-post-thumbnail {
+  display: block;
+  max-width: 100%;
+  max-height: 180px;
+  margin: 8px 0;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .gcu-post-images {
+    margin: 10px 10px 0;
+  }
+
+  .gcu-post-image-button {
+    height: 140px;
+  }
+
+  .gcu-post-images[data-count="1"] .gcu-post-image-button,
+  .gcu-post-images[data-count="3"] .gcu-post-image-button:first-child {
+    height: 240px;
+  }
+}
